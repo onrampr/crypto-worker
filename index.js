@@ -128,9 +128,36 @@ async function testDatabaseConnection() {
     await connection.ping();
     connection.release();
     console.log('✅ Database connected successfully');
+    console.log(`🔗 Database: ${process.env.DB_HOST || process.env.MYSQL_HOST || 'not configured'}`);
   } catch (error) {
     console.error('❌ Database connection failed:', error.message);
-    console.error('Please check your database credentials in environment variables');
+    console.error('\n📋 Missing Environment Variables:');
+    
+    const required = [
+      { env: 'DB_HOST', alt: 'MYSQL_HOST', set: !!(process.env.DB_HOST || process.env.MYSQL_HOST) },
+      { env: 'DB_USER', alt: 'MYSQLUSER', set: !!(process.env.DB_USER || process.env.MYSQLUSER) },
+      { env: 'DB_PASS', alt: 'MYSQLPASSWORD', set: !!(process.env.DB_PASS || process.env.MYSQLPASSWORD) },
+      { env: 'DB_NAME', alt: 'MYSQLDATABASE', set: !!(process.env.DB_NAME || process.env.MYSQLDATABASE) },
+      { env: 'DB_PORT', alt: 'MYSQLPORT', set: !!(process.env.DB_PORT || process.env.MYSQLPORT) }
+    ];
+    
+    required.forEach(({ env, alt, set }) => {
+      const value = process.env[env] || process.env[alt];
+      // Check if value is literally the variable name (common mistake)
+      const isLiteral = value === env || value === alt;
+      
+      if (isLiteral) {
+        console.error(`   ❌ ${env}: LITERAL VALUE "${value}" (should be reference, not plain variable!)`);
+      } else {
+        console.error(`   ${set ? '✅' : '❌'} ${env} (or ${alt}): ${set ? `Set (${value?.substring(0, 10)}...)` : 'MISSING'}`);
+      }
+    });
+    
+    console.error('\n⚠️  IMPORTANT: The error shows username is "DB_USER" - this means:');
+    console.error('   - You set DB_USER as a PLAIN variable with value "DB_USER"');
+    console.error('   - You need to use REFERENCE VARIABLE instead!');
+    console.error('\n📖 See RAILWAY_ENV_SETUP.md for detailed setup instructions');
+    console.error('💡 Delete the plain variables and add Reference Variables in Railway!');
   }
 }
 
