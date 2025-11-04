@@ -7,7 +7,8 @@
     "start": "node index.js",
     "generate-wallet": "node scripts/generateWallet.js",
     "detect-deposits": "node scripts/detectDeposits.js",
-    "consolidate": "node scripts/consolidate.js"
+    "consolidate": "node scripts/consolidate.js",
+    "migrate": "node scripts/runMigrations.js"
   },
   "dependencies": {
     "ethers": "^6.9.0",
