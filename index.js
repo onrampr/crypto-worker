@@ -144,12 +144,22 @@ async function testDatabaseConnection() {
     required.forEach(({ env, alt, set }) => {
       const value = process.env[env] || process.env[alt];
       // Check if value is literally the variable name (common mistake)
-      const isLiteral = value === env || value === alt;
+      // Also check for backticks around the value (e.g., "`DB_USER`")
+      const normalizedValue = value ? value.trim().replace(/^`+|`+$/g, '') : '';
+      const isLiteral = value === env || 
+                       value === alt || 
+                       normalizedValue === env || 
+                       normalizedValue === alt ||
+                       // Check if value is just the variable name with backticks
+                       (value && (value === `\`${env}\`` || value === `\`${alt}\``));
       
-      if (isLiteral) {
+      if (isLiteral && value) {
         console.error(`   ❌ ${env}: LITERAL VALUE "${value}" (should be reference, not plain variable!)`);
+        console.error(`      Current value: "${value}"`);
+        console.error(`      Expected: Reference to MySQL → ${alt}`);
       } else {
-        console.error(`   ${set ? '✅' : '❌'} ${env} (or ${alt}): ${set ? `Set (${value?.substring(0, 10)}...)` : 'MISSING'}`);
+        const displayValue = value ? (value.length > 20 ? value.substring(0, 20) + '...' : value) : 'not set';
+        console.error(`   ${set ? '✅' : '❌'} ${env} (or ${alt}): ${set ? `Set (${displayValue})` : 'MISSING'}`);
       }
     });
     
