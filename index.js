@@ -157,6 +157,8 @@ async function testDatabaseConnection() {
         console.error(`   ❌ ${env}: LITERAL VALUE "${value}" (should be reference, not plain variable!)`);
         console.error(`      Current value: "${value}"`);
         console.error(`      Expected: Reference to MySQL → ${alt}`);
+        console.error(`      💡 You set this as a PLAIN variable with value "${value}"`);
+        console.error(`      💡 Instead, use REFERENCE VARIABLE that points to MySQL's ${alt}`);
       } else {
         const displayValue = value ? (value.length > 20 ? value.substring(0, 20) + '...' : value) : 'not set';
         console.error(`   ${set ? '✅' : '❌'} ${env} (or ${alt}): ${set ? `Set (${displayValue})` : 'MISSING'}`);
